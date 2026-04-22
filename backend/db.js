@@ -1,7 +1,7 @@
 const fs   = require('fs');
 const path = require('path');
 
-const FILE = path.join(__dirname, 'data.json');
+const FILE = path.join(process.env.DATA_DIR || __dirname, 'data.json');
 
 const DEFAULTS = { tickets: {}, sorteo: [] };
 
