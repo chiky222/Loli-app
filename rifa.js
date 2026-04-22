@@ -308,7 +308,7 @@ function revealWinner(num){
     entry.date = res.drawn_at || entry.date;
   });
 
-  sorteoHistory.unshift(entry);
+  sorteoHistory.push(entry);
   renderHistory(); buildGrid();
   launchBurst();
   sorteoRunning = false;
@@ -385,6 +385,19 @@ function showToast(msg){
   setTimeout(function(){ t.classList.remove('show'); }, 3000);
 }
 
+function resetApp(){
+  if(!confirm('Reiniciar TODA la rifa? Se borran todos los números vendidos y el historial de sorteos.')) return;
+  API.del('/api/reset', function(){
+    rifaData = {}; sorteoHistory = []; lastWinner = null;
+    buildGrid(); renderList();
+    document.getElementById('winner-panel').classList.remove('show');
+    document.getElementById('drum-number').textContent = '?';
+    document.getElementById('drum-name').textContent   = 'Presiona SORTEAR';
+    renderHistory();
+    showToast('Rifa reiniciada — todos los números disponibles');
+  });
+}
+
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
 
 // ── INIT ──────────────────────────────────────────────────────
@@ -393,7 +406,7 @@ loadAll(function(){
   renderList();
   makeConfetti();
   if(sorteoHistory.length){
-    var last = sorteoHistory[0];
+    var last = sorteoHistory[sorteoHistory.length - 1];
     lastWinner = { num: last.num };
     document.getElementById('drum-number').textContent = String(last.num).padStart(2,'0');
     document.getElementById('drum-name').textContent   = last.buyer ? last.buyer.name : '-';

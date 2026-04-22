@@ -66,7 +66,7 @@ app.post('/api/sorteo', (req, res) => {
   if (!num) return res.status(400).json({ error: 'num es requerido' });
   const drawn_at = new Date().toLocaleString('es-AR');
   const data = db.read();
-  data.sorteo.unshift({ num, buyer_name, buyer_phone, drawn_at });
+  data.sorteo.push({ num, buyer_name, buyer_phone, drawn_at });
   db.write(data);
   res.json({ drawn_at });
 });
@@ -75,6 +75,12 @@ app.delete('/api/sorteo', (req, res) => {
   const data = db.read();
   data.sorteo = [];
   db.write(data);
+  res.json({ ok: true });
+});
+
+// ── Reset total ───────────────────────────────────────────────
+app.delete('/api/reset', (req, res) => {
+  db.write({ tickets: {}, sorteo: [] });
   res.json({ ok: true });
 });
 
