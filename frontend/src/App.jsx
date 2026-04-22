@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useRifa } from './hooks/useRifa';
-import Confetti    from './components/Confetti';
-import Toast       from './components/Toast';
-import Stats       from './components/Stats';
-import Grid        from './components/Grid';
-import SoldList    from './components/SoldList';
-import Debtors     from './components/Debtors';
-import TicketModal from './components/TicketModal';
-import Sorteo      from './components/Sorteo';
+import { useRifa }       from './hooks/useRifa';
+import { useConfirm }    from './hooks/useConfirm';
+import Confetti          from './components/Confetti';
+import Toast             from './components/Toast';
+import ConfirmModal      from './components/ConfirmModal';
+import Stats             from './components/Stats';
+import Grid              from './components/Grid';
+import SoldList          from './components/SoldList';
+import Debtors           from './components/Debtors';
+import TicketModal       from './components/TicketModal';
+import Sorteo            from './components/Sorteo';
 
 export default function App() {
-  const [tab, setTab]               = useState('gestion');
+  const [tab, setTab]                 = useState('gestion');
   const [selectedNum, setSelectedNum] = useState(null);
 
   const {
@@ -20,10 +22,17 @@ export default function App() {
     addSorteoWinner, resetSorteo, resetApp,
   } = useRifa();
 
+  const { confirm, confirmState, respond } = useConfirm();
+
   useEffect(() => { loadAll(); }, []);
 
   async function handleReset() {
-    if (!confirm('Reiniciar TODA la rifa? Se borran todos los números vendidos y el historial de sorteos.')) return;
+    const ok = await confirm(
+      'Reiniciar toda la rifa',
+      'Se borrarán todos los números vendidos y el historial de sorteos. Esta acción no se puede deshacer.',
+      '🗑️'
+    );
+    if (!ok) return;
     await resetApp();
     showToast('Rifa reiniciada — todos los números disponibles');
   }
@@ -65,6 +74,7 @@ export default function App() {
           onAddWinner={addSorteoWinner}
           onResetSorteo={resetSorteo}
           showToast={showToast}
+          confirm={confirm}
         />
       )}
 
@@ -76,8 +86,20 @@ export default function App() {
           onSave={async (num, body) => { await saveTicket(num, body); showToast(`Nro ${String(num).padStart(2,'0')} vendido a ${body.name}`); }}
           onRelease={releaseTicket}
           onTogglePay={handleTogglePay}
+          confirm={confirm}
         />
       )}
+
+      <ConfirmModal
+        open={confirmState.open}
+        icon={confirmState.icon}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmLabel="Confirmar"
+        confirmDanger
+        onConfirm={() => respond(true)}
+        onCancel={() => respond(false)}
+      />
 
       <Toast msg={toast.msg} show={toast.show} />
     </>

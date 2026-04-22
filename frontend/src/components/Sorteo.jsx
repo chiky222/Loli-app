@@ -19,7 +19,7 @@ function launchBurst() {
   }
 }
 
-export default function Sorteo({ rifaData, sorteoHistory, onAddWinner, onResetSorteo, showToast }) {
+export default function Sorteo({ rifaData, sorteoHistory, onAddWinner, onResetSorteo, showToast, confirm }) {
   const [drumNum,  setDrumNum]  = useState('?');
   const [drumName, setDrumName] = useState('Presiona SORTEAR');
   const [spinning, setSpinning] = useState(false);
@@ -79,7 +79,8 @@ export default function Sorteo({ rifaData, sorteoHistory, onAddWinner, onResetSo
 
   async function handleReset() {
     if (running) return;
-    if (!confirm('Reiniciar el historial de sorteos?')) return;
+    const ok = await confirm('Reiniciar historial de sorteos', 'Se borrará el historial completo. Los números vendidos no se tocan.', '🎲');
+    if (!ok) return;
     await onResetSorteo();
     setWinner(null);
     setDrumNum('?');

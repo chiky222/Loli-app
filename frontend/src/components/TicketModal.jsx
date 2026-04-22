@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-export default function TicketModal({ num, ticket, onClose, onSave, onRelease, onTogglePay }) {
+export default function TicketModal({ num, ticket, onClose, onSave, onRelease, onTogglePay, confirm }) {
   const [editing, setEditing]   = useState(!ticket);
   const [name,    setName]      = useState('');
   const [phone,   setPhone]     = useState('');
@@ -100,7 +100,7 @@ export default function TicketModal({ num, ticket, onClose, onSave, onRelease, o
               {ticket?.paid ? 'Marcar como pendiente' : 'Marcar como pago'}
             </button>
             <button className="btn-save" style={{ marginTop: 8 }} onClick={() => setEditing(true)}>Editar datos</button>
-            <button className="btn-release" onClick={() => { if (confirm(`Liberar el numero #${num}?`)) { onRelease(num); onClose(); } }}>
+            <button className="btn-release" onClick={async () => { const ok = await confirm(`Liberar el número #${num}`, 'El número quedará disponible para otra persona.', '🔓'); if (ok) { onRelease(num); onClose(); } }}>
               Liberar numero
             </button>
           </>
