@@ -1,25 +1,20 @@
-const Database = require('better-sqlite3');
+const fs   = require('fs');
 const path = require('path');
 
-const db = new Database(path.join(__dirname, 'rifa.db'));
+const FILE = path.join(__dirname, 'data.json');
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS tickets (
-    num     INTEGER PRIMARY KEY,
-    name    TEXT    NOT NULL,
-    phone   TEXT    DEFAULT '',
-    note    TEXT    DEFAULT '',
-    paid    INTEGER DEFAULT 0,
-    date    TEXT    NOT NULL
-  );
+const DEFAULTS = { tickets: {}, sorteo: [] };
 
-  CREATE TABLE IF NOT EXISTS sorteo_history (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    num         INTEGER NOT NULL,
-    buyer_name  TEXT,
-    buyer_phone TEXT,
-    drawn_at    TEXT    NOT NULL
-  );
-`);
+function read(){
+  try {
+    return JSON.parse(fs.readFileSync(FILE, 'utf8'));
+  } catch(e) {
+    return JSON.parse(JSON.stringify(DEFAULTS));
+  }
+}
 
-module.exports = db;
+function write(data){
+  fs.writeFileSync(FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+module.exports = { read, write };
